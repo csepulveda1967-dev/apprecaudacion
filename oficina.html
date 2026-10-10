@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recaudación · Oficina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF1F5;--card:#fff;--ink:#14213D;--mut:#5B6779;--line:#D8DFE8;--ok:#14795A;--okbg:#DDF3EA;--warn:#8A5A00;--warnbg:#FCEBCB;--hl:#FFF6DC;--hd:#14213D;--err:#C23B3B;--onok:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#0A0F1A;--card:#18233A;--ink:#EEF2F8;--mut:#9AA7BC;--line:#2C3A56;--ok:#4FD1A1;--okbg:#12362B;--warn:#F5C26B;--warnbg:#3D2E10;--hl:#2A2A14;--hd:#0F1A2E;--onok:#04261C}}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;padding-bottom:env(safe-area-inset-bottom,0px)}
+header{background:var(--hd);color:#fff;padding:calc(18px + env(safe-area-inset-top,0px)) clamp(16px,4vw,40px) 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:21px;font-weight:700;font-stretch:90%}
+header small{display:block;opacity:.7;font-size:14px;font-weight:400;margin-top:2px}
+.hr{display:flex;gap:10px;align-items:center}
+.live{display:flex;align-items:center;gap:8px;font-weight:600;background:rgba(255,255,255,.12);padding:8px 14px;border-radius:999px;font-size:14px}
+.live i{width:9px;height:9px;border-radius:50%;background:#4FD1A1;animation:p 1.8s infinite}
+@keyframes p{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}}
+.out{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:999px;padding:9px 14px;font:600 14px 'Archivo',system-ui,sans-serif;cursor:pointer}
+main{max-width:1180px;margin:0 auto;padding:22px clamp(16px,4vw,40px) 40px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.kpi small{color:var(--mut);font-size:14px}
+.kpi strong{display:block;font-size:26px;font-weight:700;font-stretch:90%;margin-top:2px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:20px 0 12px}
+.bar input,.bar select{height:46px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:500 15px 'Archivo',system-ui,sans-serif;padding:0 14px}
+.bar input[type=search]{flex:1;min-width:200px}
+.bar input:focus,.bar select:focus,button:focus-visible{outline:3px solid #F2A93B;outline-offset:1px}
+.btn{height:46px;border:0;border-radius:12px;background:var(--ok);color:var(--onok);font:700 15px 'Archivo',system-ui,sans-serif;padding:0 18px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.wrap{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:780px}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:14px;color:var(--mut);font-weight:600;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right}td.n{font-weight:700;font-variant-numeric:tabular-nums}
+tr.new td{background:var(--hl)}
+.tag{display:inline-block;border-radius:999px;padding:4px 11px;font-size:13.5px;font-weight:600}
+.tag.ok{background:var(--okbg);color:var(--ok)}.tag.rv{background:var(--warnbg);color:var(--warn)}
+.tag.tr{background:var(--bg);color:var(--ink);border:1px solid var(--line)}.tag.ef{background:var(--ink);color:var(--bg)}
+.lnk{background:none;border:0;color:var(--mut);font:600 14px 'Archivo',system-ui,sans-serif;cursor:pointer;text-decoration:underline;padding:6px}
+.empty{padding:40px;text-align:center;color:var(--mut)}
+.login{max-width:380px;margin:12vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px}
+.login h1{margin:0 0 4px;font-size:24px}.login p{margin:0 0 14px;color:var(--mut)}
+.login label{display:block;font-weight:600;margin:14px 0 6px}
+.login input{width:100%;height:50px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:500 17px 'Archivo',system-ui,sans-serif;padding:0 14px}
+.login .btn{width:100%;justify-content:center;margin-top:18px;height:52px}
+.msg{color:var(--err);font-weight:600;min-height:22px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="login" id="vLogin" hidden>
+  <h1>Recaudación · Oficina</h1><p>Ingresa con tu usuario.</p>
+  <label for="em">Correo</label><input id="em" type="email" autocomplete="username">
+  <label for="pw">Contraseña</label><input id="pw" type="password" autocomplete="current-password">
+  <div class="msg" id="loginMsg" role="alert"></div>
+  <button class="btn" id="enter" type="button">Entrar</button>
+</div>
+
+<div id="vApp" hidden>
+<header>
+  <h1>Pagos recibidos<small id="fecha"></small></h1>
+  <div class="hr"><div class="live"><i></i>En vivo</div><button class="out" id="logout" type="button">Salir</button></div>
+</header>
+<main>
+  <div class="kpis">
+    <div class="kpi"><small>Cobrado</small><strong id="k1">$0</strong></div>
+    <div class="kpi"><small>Pagos registrados</small><strong id="k2">0</strong></div>
+    <div class="kpi"><small>En efectivo</small><strong id="k5">$0</strong></div>
+    <div class="kpi"><small>Choferes activos</small><strong id="k3">0</strong></div>
+    <div class="kpi"><small>Por revisar</small><strong id="k4">0</strong></div>
+  </div>
+  <div class="bar">
+    <input id="dia" type="date" aria-label="Día">
+    <input id="q" type="search" placeholder="Buscar por factura o titular" aria-label="Buscar por factura o titular">
+    <select id="ch" aria-label="Filtrar por chofer"><option value="">Todos los choferes</option></select>
+    <select id="md" aria-label="Filtrar por medio de pago"><option value="">Todos los medios</option><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option></select>
+    <select id="st" aria-label="Filtrar por estado"><option value="">Todos los estados</option><option value="ok">Recibidos</option><option value="rv">Por revisar</option></select>
+    <button class="btn" id="exp" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Exportar a Excel</button>
+  </div>
+  <div class="wrap"><table>
+    <thead><tr><th>Hora</th><th>Chofer</th><th>Factura</th><th class="n">Monto</th><th>Medio</th><th>Titular</th><th>Estado</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table><div class="empty" id="empty" hidden>No hay pagos con esos filtros.</div></div>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SB=supabase.createClient('https://ytjjocascaqicwuxgjru.supabase.co','sb_publishable_1Dhde__fNaGpDmGsqN0BKQ_T1B9SqGC');
+const $=id=>document.getElementById(id);
+const clp=n=>'$'+Number(n).toLocaleString('es-CL');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hh=r=>new Date(r.creado_en).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+let rows=[],fresh=new Set(),chan=null,timer=null;
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)}
+const hoy=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+
+async function start(){
+  const {data}=await SB.auth.getSession();
+  if(!data.session){$('vLogin').hidden=false;$('vApp').hidden=true;return}
+  $('vLogin').hidden=true;$('vApp').hidden=false;
+  if(!$('dia').value)$('dia').value=hoy();
+  await load(false);
+  if(!chan)chan=SB.channel('pagos-vivo').on('postgres_changes',{event:'*',schema:'public',table:'pagos'},()=>{clearTimeout(timer);timer=setTimeout(()=>load(true),400)}).subscribe();
+}
+$('enter').onclick=async()=>{
+  $('loginMsg').textContent='';$('enter').disabled=true;
+  const {error}=await SB.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
+  $('enter').disabled=false;
+  if(error){$('loginMsg').textContent='Correo o contraseña incorrectos.';return}
+  start();
+};
+$('logout').onclick=async()=>{await SB.auth.signOut();if(chan){SB.removeChannel(chan);chan=null}rows=[];$('vApp').hidden=true;$('vLogin').hidden=false};
+
+async function load(notify){
+  const [y,m,d]=$('dia').value.split('-').map(Number);
+  const ini=new Date(y,m-1,d),fin=new Date(y,m-1,d+1);
+  $('fecha').textContent=ini.toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long'});
+  const {data,error}=await SB.from('pagos').select('*').gte('creado_en',ini.toISOString()).lt('creado_en',fin.toISOString()).order('creado_en',{ascending:false}).limit(3000);
+  if(error){toast('No se pudieron cargar los pagos');return}
+  const prev=new Set(rows.map(r=>r.id));
+  fresh=new Set();
+  if(notify)data.forEach(r=>{if(!prev.has(r.id))fresh.add(r.id)});
+  rows=data;
+  if(fresh.size)toast(fresh.size===1?'Llegó un pago nuevo':`Llegaron ${fresh.size} pagos nuevos`);
+  const sel=$('ch'),cur=sel.value,nombres=[...new Set(rows.map(r=>r.chofer))].sort();
+  sel.innerHTML='<option value="">Todos los choferes</option>'+nombres.map(n=>`<option>${esc(n)}</option>`).join('');
+  sel.value=nombres.includes(cur)?cur:'';
+  render();
+}
+function view(){
+  const q=$('q').value.trim().toLowerCase(),c=$('ch').value,s=$('st').value,m=$('md').value;
+  return rows.filter(r=>(!q||r.numero_factura.toLowerCase().includes(q)||(r.titular||'').toLowerCase().includes(q))&&(!c||r.chofer===c)&&(!m||r.medio_pago===m)&&(!s||(s==='rv')===r.revisar));
+}
+function render(){
+  const v=view();
+  $('rows').innerHTML=v.map(r=>`<tr class="${fresh.has(r.id)?'new':''}"><td>${hh(r)}</td><td>${esc(r.chofer)}</td><td>${esc(r.numero_factura)}</td><td class="n">${clp(r.monto)}</td><td><span class="tag ${r.medio_pago==='efectivo'?'ef':'tr'}">${r.medio_pago==='efectivo'?'Efectivo':'Transferencia'}</span></td><td>${r.titular?esc(r.titular):'—'}</td><td><span class="tag ${r.revisar?'rv':'ok'}">${r.revisar?'Por revisar':'Recibido'}</span></td><td><button class="lnk" data-t="${r.id}" type="button">${r.revisar?'Marcar revisado':'Marcar por revisar'}</button></td></tr>`).join('');
+  $('empty').hidden=v.length>0;
+  $('k1').textContent=clp(rows.reduce((a,r)=>a+Number(r.monto),0));
+  $('k2').textContent=rows.length;
+  $('k5').textContent=clp(rows.filter(r=>r.medio_pago==='efectivo').reduce((a,r)=>a+Number(r.monto),0));
+  $('k3').textContent=new Set(rows.map(r=>r.chofer)).size;
+  $('k4').textContent=rows.filter(r=>r.revisar).length;
+}
+['q','ch','st','md'].forEach(i=>$(i).addEventListener('input',render));
+$('dia').addEventListener('change',()=>load(false));
+$('rows').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-t]');if(!b)return;
+  const r=rows.find(x=>String(x.id)===b.dataset.t);if(!r)return;
+  const {error}=await SB.from('pagos').update({revisar:!r.revisar}).eq('id',r.id);
+  if(error){toast('No se pudo actualizar');return}
+  r.revisar=!r.revisar;render();
+});
+$('exp').onclick=()=>{
+  const v=view();if(!v.length){toast('No hay pagos para exportar');return}
+  const cel=x=>'"'+String(x).replace(/"/g,'""')+'"';
+  const f=$('dia').value.split('-').reverse().join('/');
+  const cab=['Fecha','Hora','Chofer','Factura','Monto','Medio de pago','Titular','Estado'];
+  const lin=[cab.map(cel).join(';')].concat(v.map(r=>[cel(f),cel(hh(r)),cel(r.chofer),cel(r.numero_factura),Number(r.monto),cel(r.medio_pago==='efectivo'?'Efectivo':'Transferencia'),cel(r.titular||''),cel(r.revisar?'Por revisar':'Recibido')].join(';')));
+  const blob=new Blob(['\uFEFF'+lin.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pagos-'+$('dia').value+'.csv';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Archivo listo para abrir en Excel');
+};
+start();
+</script>
+</body>
+</html>
