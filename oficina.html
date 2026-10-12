@@ -51,6 +51,15 @@ tr.new td{background:var(--hl)}
 .msg{color:var(--err);font-weight:600;min-height:22px;margin-top:10px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%}
 .toast.on{opacity:1}
+.cierre{margin-top:30px}
+.cierre h2{margin:0 0 4px;font-size:20px;font-weight:700;font-stretch:90%}
+.cierre p{margin:0 0 12px;color:var(--mut)}
+.cierre table{min-width:720px}
+.ent{width:160px;height:42px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:600 15px 'Archivo',system-ui,sans-serif;padding:0 12px;text-align:right}
+.ent:focus{outline:3px solid #F2A93B;outline-offset:1px}
+.tag.fa{background:#F9D9D9;color:#8C1F1F}
+@media (prefers-color-scheme:dark){.tag.fa{background:#4A1D1D;color:#F5B5B5}}
+.btn.sm{height:40px;padding:0 14px;font-size:14px}
 </style>
 </head>
 <body>
@@ -88,6 +97,14 @@ tr.new td{background:var(--hl)}
     <thead><tr><th>Hora</th><th>Chofer</th><th>Factura</th><th class="n">Monto</th><th>Medio</th><th>Titular</th><th>Estado</th><th></th></tr></thead>
     <tbody id="rows"></tbody>
   </table><div class="empty" id="empty" hidden>No hay pagos con esos filtros.</div></div>
+  <section class="cierre">
+    <h2>Cierre del día · efectivo</h2>
+    <p>Cuando cada chofer entregue el efectivo, cuéntalo y escribe el monto. Se compara solo con lo que registró en la app.</p>
+    <div class="wrap"><table>
+      <thead><tr><th>Chofer</th><th class="n">Pagos en efectivo</th><th class="n">Registrado en app</th><th class="n">Efectivo entregado</th><th>Resultado</th><th></th></tr></thead>
+      <tbody id="cierreRows"></tbody>
+    </table><div class="empty" id="cierreEmpty" hidden>Aún no hay choferes con pagos este día.</div></div>
+  </section>
 </main>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -99,7 +116,7 @@ const $=id=>document.getElementById(id);
 const clp=n=>'$'+Number(n).toLocaleString('es-CL');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const hh=r=>new Date(r.creado_en).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-let rows=[],fresh=new Set(),chan=null,timer=null;
+let rows=[],fresh=new Set(),chan=null,timer=null,cierres={},drafts={};
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)}
 const hoy=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 
@@ -130,6 +147,8 @@ async function load(notify){
   fresh=new Set();
   if(notify)data.forEach(r=>{if(!prev.has(r.id))fresh.add(r.id)});
   rows=data;
+  const cr=await SB.from('cierres').select('*').eq('dia',$('dia').value);
+  cierres={};(cr.data||[]).forEach(x=>cierres[x.chofer]=x);
   if(fresh.size)toast(fresh.size===1?'Llegó un pago nuevo':`Llegaron ${fresh.size} pagos nuevos`);
   const sel=$('ch'),cur=sel.value,nombres=[...new Set(rows.map(r=>r.chofer))].sort();
   sel.innerHTML='<option value="">Todos los choferes</option>'+nombres.map(n=>`<option>${esc(n)}</option>`).join('');
@@ -149,6 +168,7 @@ function render(){
   $('k5').textContent=clp(rows.filter(r=>r.medio_pago==='efectivo').reduce((a,r)=>a+Number(r.monto),0));
   $('k3').textContent=new Set(rows.map(r=>r.chofer)).size;
   $('k4').textContent=rows.filter(r=>r.revisar).length;
+  renderCierre();
 }
 ['q','ch','st','md'].forEach(i=>$(i).addEventListener('input',render));
 $('dia').addEventListener('change',()=>load(false));
@@ -170,6 +190,47 @@ $('exp').onclick=()=>{
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   toast('Archivo listo para abrir en Excel');
 };
+function renderCierre(){
+  const nombres=[...new Set(rows.map(r=>r.chofer))].sort();
+  $('cierreEmpty').hidden=nombres.length>0;
+  $('cierreRows').innerHTML=nombres.map(n=>{
+    const ef=rows.filter(r=>r.chofer===n&&r.medio_pago==='efectivo');
+    const reg=ef.reduce((a,r)=>a+Number(r.monto),0);
+    const sv=cierres[n];
+    const val=drafts[n]!==undefined?drafts[n]:(sv?Number(sv.efectivo_entregado).toLocaleString('es-CL'):'');
+    const num=Number(String(val).replace(/\D/g,''));
+    let res='<span class="tag tr">Pendiente</span>';
+    if(val!==''){
+      const dif=num-reg;
+      res=dif===0?'<span class="tag ok">Cuadra</span>':dif<0?`<span class="tag fa">Faltan ${clp(-dif)}</span>`:`<span class="tag rv">Sobran ${clp(dif)}</span>`;
+      if(sv&&drafts[n]===undefined)res+=' <small style="color:var(--mut)">cerrado</small>';
+    }
+    return `<tr><td>${esc(n)}</td><td class="n">${ef.length}</td><td class="n">${clp(reg)}</td><td class="n"><input class="ent" data-c="${esc(n)}" inputmode="numeric" placeholder="$ 0" value="${val}" aria-label="Efectivo entregado por ${esc(n)}"></td><td>${res}</td><td><button class="btn sm" data-g="${esc(n)}" type="button">Guardar cierre</button></td></tr>`;
+  }).join('');
+}
+$('cierreRows').addEventListener('input',e=>{
+  const i=e.target.closest('input[data-c]');if(!i)return;
+  const d=i.value.replace(/\D/g,'').slice(0,10);
+  i.value=d?Number(d).toLocaleString('es-CL'):'';
+  drafts[i.dataset.c]=i.value;
+  const tr=i.closest('tr'),reg=Number(tr.children[2].textContent.replace(/\D/g,'')),num=Number(d||0),cell=tr.children[4];
+  if(!d){cell.innerHTML='<span class="tag tr">Pendiente</span>';return}
+  const dif=num-reg;
+  cell.innerHTML=dif===0?'<span class="tag ok">Cuadra</span>':dif<0?`<span class="tag fa">Faltan ${clp(-dif)}</span>`:`<span class="tag rv">Sobran ${clp(dif)}</span>`;
+});
+$('cierreRows').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-g]');if(!b)return;
+  const n=b.dataset.g,txt=drafts[n]!==undefined?drafts[n]:(cierres[n]?String(cierres[n].efectivo_entregado):'');
+  if(String(txt).replace(/\D/g,'')===''){toast('Escribe el efectivo entregado por '+n);return}
+  const ent=Number(String(txt).replace(/\D/g,''));
+  const reg=rows.filter(r=>r.chofer===n&&r.medio_pago==='efectivo').reduce((a,r)=>a+Number(r.monto),0);
+  b.disabled=true;
+  const {data,error}=await SB.from('cierres').upsert({dia:$('dia').value,chofer:n,efectivo_registrado:reg,efectivo_entregado:ent},{onConflict:'dia,chofer'}).select().single();
+  b.disabled=false;
+  if(error){toast('No se pudo guardar el cierre');return}
+  cierres[n]=data;delete drafts[n];renderCierre();toast('Cierre guardado · '+n);
+});
+
 start();
 </script>
 </body>
