@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recaudación · Chofer</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#14213D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Recaudación">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9EDF1;--card:#fff;--ink:#14213D;--mut:#5B6779;--line:#D3DAE3;--ok:#14795A;--okbg:#DDF3EA;--warn:#F2A93B;--err:#C23B3B;--phone:#0E1626;--onok:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#0A0F1A;--card:#18233A;--ink:#EEF2F8;--mut:#9AA7BC;--line:#2C3A56;--ok:#4FD1A1;--okbg:#12362B;--phone:#000;--onok:#04261C}}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center}
+.phone{width:100%;max-width:400px;height:100%;max-height:820px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;position:relative;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (min-width:520px){.phone{border:10px solid var(--phone);border-radius:44px;box-shadow:0 30px 60px -20px rgba(10,20,40,.45)}}
+[hidden]{display:none!important}
+header{background:var(--ink);color:#fff;padding:20px 20px 18px}
+@media (prefers-color-scheme:dark){header{background:#0F1A2E}}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.who{font-size:15px;opacity:.8}.who b{display:block;font-size:20px;font-weight:700;font-stretch:90%;opacity:1}
+.out{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:999px;padding:10px 16px;font:600 14px 'Archivo',system-ui,sans-serif;cursor:pointer}
+.sum{margin-top:14px;display:flex;gap:10px}
+.sum div{flex:1;background:rgba(255,255,255,.1);border-radius:14px;padding:10px 14px}
+.sum small{display:block;font-size:12.5px;opacity:.75}.sum strong{font-size:22px;font-weight:700;font-stretch:90%}
+.split{margin-top:10px;font-size:14px;opacity:.85}
+nav{display:flex;gap:6px;padding:12px 16px 0}
+nav button{flex:1;height:48px;border:0;border-radius:14px;background:transparent;color:var(--mut);font:600 16px 'Archivo',system-ui,sans-serif;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:inset 0 -3px 0 var(--ok)}
+main{flex:1;overflow-y:auto;padding:14px 16px 24px}
+.box{padding:36px 22px}
+.box h1{font-size:26px;margin:0 0 6px;font-stretch:90%}.box p{color:var(--mut);margin:0 0 8px;font-size:17px}
+label{display:block;font-size:16px;font-weight:600;margin:16px 2px 8px}
+.field{position:relative}
+.field input{width:100%;height:60px;border:2px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font:600 22px 'Archivo',system-ui,sans-serif;padding:0 16px}
+.field.money input{padding-left:40px}
+.field.money::before{content:'$';position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:22px;font-weight:700;color:var(--mut)}
+.field input:focus{outline:3px solid var(--warn);outline-offset:1px;border-color:var(--ink)}
+.field input::placeholder{color:#9AA5B5;font-weight:500}
+.field.bad input{border-color:var(--err)}
+.err{color:var(--err);font-size:14px;margin:6px 4px 0;display:none}
+.field.bad + .err{display:block}
+.seg{display:flex;gap:10px}
+.seg button{flex:1;height:64px;border:2px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font:700 17px 'Archivo',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.seg button[aria-checked="true"]{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.send{width:100%;height:68px;margin-top:24px;border:0;border-radius:18px;background:var(--ok);color:var(--onok);font:800 21px 'Archivo',system-ui,sans-serif;cursor:pointer}
+.send:active{transform:scale(.98)}.send:disabled{opacity:.7}
+button:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+.msg{color:var(--err);font-weight:600;margin-top:12px;min-height:22px}
+.item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:14px;margin-bottom:10px;border:1px solid var(--line)}
+.item .dot{width:42px;height:42px;border-radius:12px;background:var(--okbg);display:grid;place-items:center;flex:none}
+.item b{display:block;font-size:17px}.item small{color:var(--mut);font-size:14px}
+.item .amt{margin-left:auto;font-weight:800;font-size:18px;white-space:nowrap}
+.empty{text-align:center;color:var(--mut);padding:50px 20px;font-size:17px}
+.toast{position:absolute;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ok);color:var(--onok);border-radius:16px;padding:16px 18px;font-weight:700;font-size:17px;text-align:center;opacity:0;transform:translateY(10px);transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+#install{background:#2E7D5B}
+.ioshint{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px;margin:0 16px 10px;display:flex;gap:10px;align-items:center}
+.ioshint button{margin-left:auto;background:none;border:0;color:var(--mut);font:600 20px 'Archivo',system-ui,sans-serif;cursor:pointer;line-height:1}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <main id="vLogin" class="box" hidden>
+    <h1>Recaudación</h1><p>Ingresa con tu usuario.</p>
+    <label for="em">Correo</label>
+    <div class="field"><input id="em" type="email" autocomplete="username" inputmode="email"></div>
+    <label for="pw">Contraseña</label>
+    <div class="field"><input id="pw" type="password" autocomplete="current-password"></div>
+    <div class="msg" id="loginMsg" role="alert"></div>
+    <button class="send" id="enter" type="button">Entrar</button>
+  </main>
+
+  <main id="vName" class="box" hidden>
+    <h1>¿Cómo te llamas?</h1><p>Tu nombre aparecerá en los pagos que registres.</p>
+    <label for="nm">Nombre y apellido</label>
+    <div class="field"><input id="nm" autocomplete="name"></div>
+    <button class="send" id="saveName" type="button">Continuar</button>
+  </main>
+
+  <div id="vApp" style="display:flex;flex-direction:column;flex:1;min-height:0" hidden>
+    <header>
+      <div class="top"><div class="who">Hola,<b id="hName"></b></div><button class="out" id="install" type="button" hidden>Instalar app</button>
+      <button class="out" id="logout" type="button">Salir</button></div>
+      <div class="sum">
+        <div><small>Cobrado hoy</small><strong id="tot">$0</strong></div>
+        <div><small>Pagos</small><strong id="cnt">0</strong></div>
+      </div>
+      <div class="split" id="split"></div>
+    </header>
+    <div class="ioshint" id="iosHint" hidden>Para instalarla, toca compartir y luego "Agregar a pantalla de inicio".<button type="button" id="iosHintX" aria-label="Cerrar">&times;</button></div>
+    <div class="ioshint" id="offBar" hidden style="background:var(--warn);border-color:var(--warn);color:#1a1200;font-weight:700"></div>
+    <nav role="tablist">
+      <button role="tab" id="t1" aria-selected="true">Nuevo pago</button>
+      <button role="tab" id="t2" aria-selected="false">Enviados hoy</button>
+    </nav>
+    <main>
+      <section id="v1">
+        <div class="seg" role="radiogroup" aria-label="Forma de pago">
+          <button type="button" role="radio" aria-checked="true" id="mT"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg>Transferencia</button>
+          <button type="button" role="radio" aria-checked="false" id="mE"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Efectivo</button>
+        </div>
+        <label for="fac">N° de factura</label>
+        <div class="field" id="f1"><input id="fac" inputmode="numeric" autocomplete="off" placeholder="Ej: 48213"></div>
+        <div class="err" id="errF">Escribe el número de factura.</div>
+        <label for="mon" id="labMon">Monto transferido</label>
+        <div class="field money" id="f2"><input id="mon" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+        <div class="err">Escribe un monto mayor a cero.</div>
+        <label for="tit" id="labTit">Nombre del titular de la cuenta</label>
+        <div class="field" id="f3"><input id="tit" list="tits" autocomplete="off" placeholder="Quien hizo la transferencia"></div>
+        <div class="err">Escribe el nombre del titular.</div>
+        <button class="send" id="send" type="button">Enviar pago</button>
+      </section>
+      <section id="v2" hidden></section>
+      <datalist id="tits"></datalist>
+    </main>
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SB=supabase.createClient('https://ytjjocascaqicwuxgjru.supabase.co','sb_publishable_1Dhde__fNaGpDmGsqN0BKQ_T1B9SqGC');
+const $=id=>document.getElementById(id);
+const clp=n=>'$'+Number(n).toLocaleString('es-CL');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let nombre='',sent=[],met='transferencia',dupOk=false;
+const QKEY='pendientes_envio';
+const loadQ=()=>{try{return JSON.parse(localStorage.getItem(QKEY)||'[]')}catch(e){return []}};
+const saveQ=q=>{try{localStorage.setItem(QKEY,JSON.stringify(q))}catch(e){}};
+let queue=loadQ();
+function pendLabel(){const n=queue.length;$('offBar').hidden=n===0 && navigator.onLine;
+  if(!navigator.onLine){$('offBar').textContent=n>0?`Sin conexión · ${n} pago(s) guardado(s), se enviarán solos al volver la señal`:'Sin conexión · lo que registres se guardará y se enviará solo';}
+  else if(n>0){$('offBar').textContent=`Enviando ${n} pago(s) pendiente(s)…`;}
+}
+const tits=new Set();
+const store=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
+const save=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const show=v=>{['vLogin','vName','vApp'].forEach(x=>$(x).hidden=x!==v)};
+
+function toast(t,bad){const e=$('toast');e.textContent=t;e.style.background=bad?'var(--err)':'';e.style.color=bad?'#fff':'';e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
+const fillTits=()=>{$('tits').innerHTML=[...tits].map(t=>`<option value="${esc(t)}">`).join('')};
+
+async function start(){
+  const {data}=await SB.auth.getSession();
+  if(!data.session){show('vLogin');return}
+  nombre=store('nombre_chofer');
+  if(!nombre){show('vName');return}
+  await enterApp();
+}
+async function enterApp(){
+  $('hName').textContent=nombre;show('vApp');
+  const ini=new Date();ini.setHours(0,0,0,0);
+  const [h,t]=await Promise.all([
+    SB.from('pagos').select('*').eq('chofer',nombre).gte('creado_en',ini.toISOString()).order('creado_en',{ascending:false}),
+    SB.from('pagos').select('titular').not('titular','is',null).order('creado_en',{ascending:false}).limit(300)
+  ]);
+  if(h.error){toast('No se pudieron cargar tus pagos de hoy',true)}else{sent=h.data}
+  (t.data||[]).forEach(x=>x.titular&&tits.add(x.titular));fillTits();update();pendLabel();enviarPendientes();
+}
+$('enter').onclick=async()=>{
+  $('loginMsg').textContent='';$('enter').disabled=true;$('enter').textContent='Entrando…';
+  const {error}=await SB.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
+  $('enter').disabled=false;$('enter').textContent='Entrar';
+  if(error){$('loginMsg').textContent='Correo o contraseña incorrectos.';return}
+  
+// --- Instalación como app (PWA) ---
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('install').hidden=false});
+$('install').onclick=async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;$('install').hidden=true;
+};
+window.addEventListener('appinstalled',()=>{$('install').hidden=true;try{localStorage.setItem('app_instalada','1')}catch(e){}});
+(function(){
+  const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  let dismissed=false;try{dismissed=localStorage.getItem('ios_hint_cerrado')==='1'}catch(e){}
+  if(isIOS&&!isStandalone&&!dismissed)$('iosHint').hidden=false;
+})();
+$('iosHintX').onclick=()=>{$('iosHint').hidden=true;try{localStorage.setItem('ios_hint_cerrado','1')}catch(e){}};
+
+start();
+};
+$('saveName').onclick=()=>{const n=$('nm').value.trim();if(!n){$('nm').focus();return}nombre=n;save('nombre_chofer',n);enterApp()};
+$('logout').onclick=async()=>{await SB.auth.signOut();sent=[];show('vLogin')};
+
+function setMet(m){
+  met=m;const c=m==='efectivo';
+  $('mT').setAttribute('aria-checked',!c);$('mE').setAttribute('aria-checked',c);
+  $('labMon').textContent=c?'Monto recibido en efectivo':'Monto transferido';
+  $('labTit').textContent=c?'Nombre de quien pagó (opcional)':'Nombre del titular de la cuenta';
+  $('tit').placeholder=c?'Quien entregó el efectivo':'Quien hizo la transferencia';
+  $('f3').classList.remove('bad');
+}
+$('mT').onclick=()=>setMet('transferencia');$('mE').onclick=()=>setMet('efectivo');
+const resetBtn=()=>{dupOk=false;$('send').textContent='Enviar pago';$('errF').textContent='Escribe el número de factura.'};
+$('mon').addEventListener('input',e=>{const d=e.target.value.replace(/\D/g,'').slice(0,10);e.target.value=d?Number(d).toLocaleString('es-CL'):''});
+$('fac').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,12);resetBtn()});
+['fac','mon','tit'].forEach((id,i)=>$(id).addEventListener('input',()=>$('f'+(i+1)).classList.remove('bad')));
+
+$('send').onclick=async()=>{
+  const fac=$('fac').value.trim(),mon=Number($('mon').value.replace(/\D/g,'')),tit=$('tit').value.trim();
+  $('errF').textContent='Escribe el número de factura.';
+  let ok=true;
+  [[!fac,'f1'],[!mon,'f2'],[!tit&&met==='transferencia','f3']].forEach(([bad,id])=>{$(id).classList.toggle('bad',bad);if(bad)ok=false});
+  if(!ok){const f=document.querySelector('.bad input');if(f)f.focus();return}
+  if(!dupOk&&(sent.some(x=>x.numero_factura===fac)||queue.some(x=>x.numero_factura===fac))){
+    $('errF').textContent='Ya registraste un pago con esta factura. Si es otro abono, toca "Enviar de todos modos".';
+    $('f1').classList.add('bad');$('send').textContent='Enviar de todos modos';dupOk=true;return;
+  }
+  const btn=$('send'),medio=met;btn.disabled=true;btn.textContent='Enviando…';
+  const pago={chofer:nombre,numero_factura:fac,monto:mon,medio_pago:medio,titular:tit||null};
+
+  if(!navigator.onLine){
+    guardarPendiente(pago);
+    btn.disabled=false;resetBtn();
+    ['fac','mon','tit'].forEach(id=>$(id).value='');setMet('transferencia');
+    toast(`Sin conexión · guardado, se enviará solo · Factura ${fac} · ${clp(mon)}`);
+    update();$('fac').focus();
+    return;
+  }
+
+  const {data,error}=await SB.from('pagos').insert(pago).select().single();
+  btn.disabled=false;resetBtn();
+  if(error){
+    guardarPendiente(pago);
+    ['fac','mon','tit'].forEach(id=>$(id).value='');setMet('transferencia');
+    toast(`No se pudo enviar ahora · guardado, se enviará solo · Factura ${fac}`,true);
+    update();$('fac').focus();
+    return;
+  }
+  sent.unshift(data);if(tit){tits.add(tit);fillTits()}
+  ['fac','mon','tit'].forEach(id=>$(id).value='');setMet('transferencia');
+  toast(`✓ ${medio==='efectivo'?'Efectivo':'Transferencia'} enviado · Factura ${fac} · ${clp(mon)}`);
+  update();$('fac').focus();
+};
+
+function guardarPendiente(pago){
+  pago._local_id=Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  queue.push(pago);saveQ(queue);pendLabel();
+}
+
+let enviandoCola=false;
+async function enviarPendientes(){
+  if(enviandoCola||queue.length===0||!navigator.onLine)return;
+  enviandoCola=true;pendLabel();
+  const restantes=[];
+  for(const pago of queue){
+    const {_local_id,...limpio}=pago;
+    const {data,error}=await SB.from('pagos').insert(limpio).select().single();
+    if(error){restantes.push(pago)}
+    else{sent.unshift(data);if(limpio.titular){tits.add(limpio.titular);fillTits()}}
+  }
+  queue=restantes;saveQ(queue);enviandoCola=false;pendLabel();update();
+  if(restantes.length===0 && queue.length===0){/* todo enviado */}
+}
+window.addEventListener('online',()=>{pendLabel();enviarPendientes()});
+window.addEventListener('offline',pendLabel);
+setInterval(()=>{if(navigator.onLine)enviarPendientes()},20000);
+
+function update(){
+  const tot=sent.reduce((a,x)=>a+Number(x.monto),0),ef=sent.filter(x=>x.medio_pago==='efectivo').reduce((a,x)=>a+Number(x.monto),0);
+  const totPend=queue.reduce((a,x)=>a+Number(x.monto),0);
+  $('tot').textContent=clp(tot+totPend);$('cnt').textContent=sent.length+queue.length;
+  $('split').textContent=(sent.length||queue.length)?`Transferencias ${clp(tot-ef)} · Efectivo ${clp(ef)}${queue.length?' · Pendientes '+clp(totPend):''}`:'';
+  $('t2').textContent=(sent.length+queue.length)?`Enviados hoy (${sent.length+queue.length})`:'Enviados hoy';
+  const pendHtml=queue.slice().reverse().map(x=>`<div class="item"><div class="dot" style="background:var(--warn);border-color:var(--warn)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg></div><div><b>Factura ${esc(x.numero_factura)}</b><small>${x.medio_pago==='efectivo'?'Efectivo':'Transferencia'} · ${x.titular?esc(x.titular)+' · ':''}esperando señal</small></div><div class="amt">${clp(x.monto)}</div></div>`).join('');
+  const sentHtml=sent.map(x=>`<div class="item"><div class="dot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><b>Factura ${esc(x.numero_factura)}</b><small>${x.medio_pago==='efectivo'?'Efectivo':'Transferencia'} · ${x.titular?esc(x.titular)+' · ':''}${new Date(x.creado_en).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</small></div><div class="amt">${clp(x.monto)}</div></div>`).join('');
+  $('v2').innerHTML=(sent.length+queue.length)?(pendHtml+sentHtml):'<div class="empty">Aún no enviaste pagos hoy.<br>Los que registres aparecerán aquí.</div>';
+  pendLabel();
+}
+function tab(n){$('v1').hidden=n!==1;$('v2').hidden=n!==2;$('t1').setAttribute('aria-selected',n===1);$('t2').setAttribute('aria-selected',n===2)}
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
+start();
+</script>
+</body>
+</html>
