@@ -40,14 +40,12 @@ main{flex:1;overflow-y:auto;padding:14px 16px 24px}
 .box h1{font-size:26px;margin:0 0 6px;font-stretch:90%}.box p{color:var(--mut);margin:0 0 8px;font-size:17px}
 label{display:block;font-size:16px;font-weight:600;margin:16px 2px 8px}
 .field{position:relative}
-.field input,.field select{width:100%;height:60px;border:2px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font:600 22px 'Archivo',system-ui,sans-serif;padding:0 16px}
+.field input,.field select{width:100%;height:60px;border:2px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);font:600 22px 'Archivo',system-ui,sans-serif;padding:0 16px;appearance:none;-webkit-appearance:none}
 .field.money input{padding-left:40px}
 .field.money::before{content:'$';position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:22px;font-weight:700;color:var(--mut)}
 .field input:focus,.field select:focus{outline:3px solid var(--warn);outline-offset:1px;border-color:var(--ink)}
 .field input::placeholder{color:#9AA5B5;font-weight:500}
-.field select{appearance:none;cursor:pointer;padding-right:48px}
-.field.select::after{content:'';position:absolute;right:20px;top:50%;width:10px;height:10px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:translateY(-70%) rotate(45deg);pointer-events:none}
-.field.bad input,.field.bad select{border-color:var(--err)}
+.field.bad input{border-color:var(--err)}
 .err{color:var(--err);font-size:14px;margin:6px 4px 0;display:none}
 .field.bad + .err{display:block}
 .send{width:100%;height:68px;margin-top:24px;border:0;border-radius:18px;background:var(--ok);color:var(--onok);font:800 21px 'Archivo',system-ui,sans-serif;cursor:pointer}
@@ -111,27 +109,8 @@ button:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
         <label for="mon">Monto de la devolución</label>
         <div class="field money" id="f2"><input id="mon" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <div class="err">Escribe un monto mayor a cero.</div>
-        <label for="mot">Motivo de la devolución</label>
-        <div class="field select" id="f3">
-          <select id="mot" required>
-            <option value="">Selecciona un motivo</option>
-            <option value="CERRADO">Cerrado</option>
-            <option value="RECHAZADO">Rechazado</option>
-            <option value="SIN DINERO">Sin dinero</option>
-            <option value="SIN MERCADERIA">Sin mercadería</option>
-            <option value="VACACIONES">Vacaciones</option>
-            <option value="MAL DIGITADO">Mal digitado</option>
-            <option value="SIN STOCK">Sin stock</option>
-            <option value="CLAUSURADO">Clausurado</option>
-            <option value="REPETIDA">Factura repetida</option>
-            <option value="SIN PRODUCTO">Sin producto</option>
-            <option value="FUERA DE RUTA">Fuera de ruta</option>
-            <option value="POR NO PAGO">Por no pago</option>
-            <option value="FUERA DE HORARIO">Fuera de horario</option>
-            <option value="NO SOLICITADO">No solicitado</option>
-          </select>
-        </div>
-        <div class="err" id="errMot">Selecciona el motivo de la devolución.</div>
+        <label for="mot">Motivo</label>
+        <div class="field" id="f3"><select id="mot"><option value="">— Seleccionar motivo —</option><option value="CERRADO">Cerrado</option><option value="SIN MERCADERIA">Sin mercadería</option><option value="SIN DINERO">Sin dinero</option><option value="RECHAZADO">Rechazado</option><option value="CLAUSURADO">Clausurado</option><option value="SIN STOCK">Sin stock</option><option value="MAL DIGITADO">Mal digitado</option></select></div>
         <button class="send" id="send" type="button">Registrar devolución</button>
       </section>
       <section id="v2" hidden></section>
@@ -148,14 +127,7 @@ const $=id=>document.getElementById(id);
 const clp=n=>'$'+Number(n).toLocaleString('es-CL');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let nombre='',sent=[],dupOk=false;
-const QKEY='pendientes_devol';
-const loadQ=()=>{try{return JSON.parse(localStorage.getItem(QKEY)||'[]')}catch(e){return []}};
-const saveQ=q=>{try{localStorage.setItem(QKEY,JSON.stringify(q))}catch(e){}};
-let queue=loadQ();
-function pendLabel(){const n=queue.length;$('offBar').hidden=n===0&&navigator.onLine;
-  if(!navigator.onLine){$('offBar').textContent=n>0?`Sin conexión · ${n} devolución(es) guardada(s), se enviarán solas al volver la señal`:'Sin conexión · lo que registres se guardará y se enviará solo';}
-  else if(n>0){$('offBar').textContent=`Enviando ${n} devolución(es) pendiente(s)…`;}
-}
+function pendLabel(){$('offBar').hidden=navigator.onLine;if(!navigator.onLine)$('offBar').textContent='Sin conexión · espera señal para registrar';}
 const store=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
 const save=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const show=v=>{['vLogin','vName','vApp'].forEach(x=>$(x).hidden=x!==v)};
@@ -174,7 +146,7 @@ async function enterApp(){
   const ini=new Date();ini.setHours(0,0,0,0);
   const {data,error}=await SB.from('devoluciones').select('*').eq('chofer',nombre).gte('creado_en',ini.toISOString()).order('creado_en',{ascending:false});
   if(error){toast('No se pudieron cargar tus devoluciones de hoy',true)}else{sent=data}
-  update();pendLabel();enviarPendientes();
+  update();pendLabel();
 }
 $('enter').onclick=async()=>{
   $('loginMsg').textContent='';$('enter').disabled=true;$('enter').textContent='Entrando…';
@@ -190,76 +162,39 @@ const resetBtn=()=>{dupOk=false;$('send').textContent='Registrar devolución';$(
 $('mon').addEventListener('input',e=>{const d=e.target.value.replace(/\D/g,'').slice(0,10);e.target.value=d?Number(d).toLocaleString('es-CL'):''});
 $('fac').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,12);resetBtn()});
 ['fac','mon'].forEach((id,i)=>$(id).addEventListener('input',()=>$('f'+(i+1)).classList.remove('bad')));
-$('mot').addEventListener('change',()=>{$('f3').classList.remove('bad')});
 
 $('send').onclick=async()=>{
   const fac=$('fac').value.trim(),mon=Number($('mon').value.replace(/\D/g,'')),mot=$('mot').value;
   $('errF').textContent='Escribe el número de factura.';
   let ok=true;
   [[!fac,'f1'],[!mon,'f2'],[!mot,'f3']].forEach(([bad,id])=>{$(id).classList.toggle('bad',bad);if(bad)ok=false});
-  if(!ok){const f=document.querySelector('.bad input, .bad select');if(f)f.focus();return}
-  if(!dupOk&&(sent.some(x=>x.numero_factura===fac)||queue.some(x=>x.numero_factura===fac))){
+  if(!ok){const f=document.querySelector('.bad input');if(f)f.focus();return}
+  if(!dupOk&&sent.some(x=>x.numero_factura===fac)){
     $('errF').textContent='Ya registraste una devolución con esta factura. Si es otra, toca "Registrar de todos modos".';
     $('f1').classList.add('bad');$('send').textContent='Registrar de todos modos';dupOk=true;return;
   }
+  if(!navigator.onLine){toast('Sin conexión · espera tener señal para registrar',true);return;}
   const btn=$('send');btn.disabled=true;btn.textContent='Enviando…';
   const devol={chofer:nombre,numero_factura:fac,monto:mon,motivo:mot||null};
-
-  if(!navigator.onLine){
-    guardarPendiente(devol);
-    btn.disabled=false;resetBtn();
-    ['fac','mon'].forEach(id=>$(id).value='');$('mot').value='';$('f3').classList.remove('bad');
-    toast(`Sin conexión · guardado, se enviará solo · Factura ${fac} · ${clp(mon)}`);
-    update();$('fac').focus();
-    return;
-  }
-
   const {data,error}=await SB.from('devoluciones').insert(devol).select().single();
   btn.disabled=false;resetBtn();
-  if(error){
-    guardarPendiente(devol);
-    ['fac','mon'].forEach(id=>$(id).value='');$('mot').value='';$('f3').classList.remove('bad');
-    toast(`No se pudo enviar ahora · guardado, se enviará solo · Factura ${fac}`,true);
-    update();$('fac').focus();
-    return;
-  }
+  if(error){toast('Error al enviar · revisa tu conexión e intenta de nuevo',true);return;}
   sent.unshift(data);
-  ['fac','mon'].forEach(id=>$(id).value='');$('mot').value='';$('f3').classList.remove('bad');
+  ['fac','mon','mot'].forEach(id=>$(id).value='');
   toast(`✓ Devolución registrada · Factura ${fac} · ${clp(mon)}`);
   update();$('fac').focus();
 };
 
-function guardarPendiente(devol){
-  devol._local_id=Date.now()+'_'+Math.random().toString(36).slice(2,8);
-  queue.push(devol);saveQ(queue);pendLabel();
-}
-
-let enviandoCola=false;
-async function enviarPendientes(){
-  if(enviandoCola||queue.length===0||!navigator.onLine)return;
-  enviandoCola=true;pendLabel();
-  const restantes=[];
-  for(const devol of queue){
-    const {_local_id,...limpio}=devol;
-    const {data,error}=await SB.from('devoluciones').insert(limpio).select().single();
-    if(error){restantes.push(devol)}
-    else{sent.unshift(data)}
-  }
-  queue=restantes;saveQ(queue);enviandoCola=false;pendLabel();update();
-}
-window.addEventListener('online',()=>{pendLabel();enviarPendientes()});
+window.addEventListener('online',pendLabel);
 window.addEventListener('offline',pendLabel);
-setInterval(()=>{if(navigator.onLine)enviarPendientes()},20000);
 
 function update(){
   const tot=sent.reduce((a,x)=>a+Number(x.monto),0);
-  const totPend=queue.reduce((a,x)=>a+Number(x.monto),0);
-  $('tot').textContent=clp(tot+totPend);$('cnt').textContent=sent.length+queue.length;
-  $('split').textContent=(sent.length||queue.length)?`Total devuelto ${clp(tot)}${queue.length?' · Pendientes '+clp(totPend):''}`:'' ;
-  $('t2').textContent=(sent.length+queue.length)?`Enviadas hoy (${sent.length+queue.length})`:'Enviadas hoy';
-  const pendHtml=queue.slice().reverse().map(x=>`<div class="item"><div class="dot" style="background:var(--warn);border-color:var(--warn)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg></div><div><b>Factura ${esc(x.numero_factura)}</b><small>${x.motivo?esc(x.motivo)+' · ':''}esperando señal</small></div><div class="amt">${clp(x.monto)}</div></div>`).join('');
+  $('tot').textContent=clp(tot);$('cnt').textContent=sent.length;
+  $('split').textContent=sent.length?`Total devuelto ${clp(tot)}`:'';
+  $('t2').textContent=sent.length?`Enviadas hoy (${sent.length})`:'Enviadas hoy';
   const sentHtml=sent.map(x=>`<div class="item"><div class="dot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><b>Factura ${esc(x.numero_factura)}</b><small>${x.motivo?esc(x.motivo)+' · ':''}${new Date(x.creado_en).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</small></div><div class="amt">${clp(x.monto)}</div></div>`).join('');
-  $('v2').innerHTML=(sent.length+queue.length)?(pendHtml+sentHtml):'<div class="empty">Aún no enviaste devoluciones hoy.<br>Las que registres aparecerán aquí.</div>';
+  $('v2').innerHTML=sent.length?sentHtml:'<div class="empty">Aún no enviaste devoluciones hoy.<br>Las que registres aparecerán aquí.</div>';
   pendLabel();
 }
 function tab(n){$('v1').hidden=n!==1;$('v2').hidden=n!==2;$('t1').setAttribute('aria-selected',n===1);$('t2').setAttribute('aria-selected',n===2)}
