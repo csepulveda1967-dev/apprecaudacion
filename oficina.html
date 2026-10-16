@@ -14,32 +14,6 @@
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;padding-bottom:env(safe-area-inset-bottom,0px)}
 header{background:var(--hd);color:#fff;padding:calc(18px + env(safe-area-inset-top,0px)) clamp(16px,4vw,40px) 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 header h1{margin:0;font-size:21px;font-weight:700;font-stretch:90%}
-.dash{margin:24px 0 30px;border:1px solid var(--line);border-radius:18px;background:var(--card);padding:20px}
-.dashhead{display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap;margin-bottom:18px}
-.dashhead h2{margin:0;font-size:22px}.dashhead p{margin:5px 0 0;color:var(--mut)}
-.period{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.period label{font-size:14px;font-weight:600;color:var(--mut)}
-.period input{height:42px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);padding:0 10px;font:500 14px 'Archivo',system-ui,sans-serif}
-.period input:focus,.period button:focus-visible{outline:3px solid #F2A93B;outline-offset:1px}
-.btn.secondary{height:42px;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-size:14px;padding:0 12px}
-.dashkpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
-.dashkpi{padding:13px 15px;background:var(--bg);border-radius:12px;min-width:0}
-.dashkpi small{display:block;color:var(--mut);font-size:13px;line-height:1.35}
-.dashkpi strong{display:block;font-size:22px;margin-top:4px;font-variant-numeric:tabular-nums}
-.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.chartcard{min-width:0;border:1px solid var(--line);border-radius:14px;padding:15px 16px;background:var(--card)}
-.chartcard h3{font-size:16px;margin:0 0 12px}
-.chartcard.trend{grid-column:1/-1}
-.chart{display:flex;flex-direction:column;gap:9px;min-height:150px;justify-content:center}
-.chartrow{display:grid;grid-template-columns:minmax(85px,150px) 1fr minmax(64px,auto);gap:10px;align-items:center;font-size:13px}
-.chartlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
-.track{height:13px;border-radius:99px;background:var(--bg);overflow:hidden}
-.fill{height:100%;min-width:2px;border-radius:99px;background:var(--ok)}
-.fill.alt{background:#456A9B}.fill.gold{background:#C78928}
-.chartvalue{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
-.chartempty{color:var(--mut);font-size:14px;padding:25px 4px;text-align:center}
-.chartnote{color:var(--mut);font-size:12px;margin-top:10px}
-@media(max-width:700px){.dash{padding:15px;margin:18px 0 24px}.dashkpis{grid-template-columns:repeat(2,minmax(0,1fr))}.period{width:100%}.period input{flex:1;min-width:120px}.period label{margin-left:0}.charts{grid-template-columns:1fr}.chartcard.trend{grid-column:auto}.chartrow{grid-template-columns:minmax(80px,110px) 1fr minmax(58px,auto);gap:7px}.dashhead{align-items:start}}
 header small{display:block;opacity:.7;font-size:14px;font-weight:400;margin-top:2px}
 .hr{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .live{display:flex;align-items:center;gap:8px;font-weight:600;background:rgba(255,255,255,.12);padding:8px 14px;border-radius:999px;font-size:14px}
@@ -53,6 +27,10 @@ main{max-width:1180px;margin:0 auto;padding:22px clamp(16px,4vw,40px) 40px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
 .kpi small{color:var(--mut);font-size:14px}
 .kpi strong{display:block;font-size:26px;font-weight:700;font-stretch:90%;margin-top:2px}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0}
+.chart-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.chart-box h3{margin:0 0 12px;font-size:14px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.chart-box canvas{max-height:200px}
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:20px 0 12px}
 .bar input,.bar select{height:46px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:500 15px 'Archivo',system-ui,sans-serif;padding:0 14px}
 .bar input[type=search]{flex:1;min-width:200px}
@@ -97,32 +75,16 @@ tr.new td{background:var(--hl)}
 </header>
 <main>
   <div class="kpis">
-    <div class="kpi"><small>Total devuelto del día</small><strong id="k1">$0</strong></div>
-    <div class="kpi"><small>Devoluciones del día</small><strong id="k2">0</strong></div>
-    <div class="kpi"><small>Choferes activos hoy</small><strong id="k3">0</strong></div>
-    <div class="kpi"><small>Por revisar hoy</small><strong id="k4">0</strong></div>
+    <div class="kpi"><small>Total devuelto</small><strong id="k1">$0</strong></div>
+    <div class="kpi"><small>Devoluciones registradas</small><strong id="k2">0</strong></div>
+    <div class="kpi"><small>Choferes activos</small><strong id="k3">0</strong></div>
+    <div class="kpi"><small>Por revisar</small><strong id="k4">0</strong></div>
   </div>
-
-  <section class="dash" aria-labelledby="dashTitle">
-    <div class="dashhead">
-      <div><h2 id="dashTitle">Panel de control</h2><p>Resumen de devoluciones registradas</p></div>
-      <div class="period"><label for="desde">Desde</label><input id="desde" type="date" aria-label="Fecha desde">
-      <label for="hasta">Hasta</label><input id="hasta" type="date" aria-label="Fecha hasta">
-      <button class="btn secondary" id="aplicar" type="button">Aplicar período</button></div>
-    </div>
-    <div class="dashkpis">
-      <div class="dashkpi"><small>Total devuelto en el período</small><strong id="pTotal">$0</strong></div>
-      <div class="dashkpi"><small>Devoluciones</small><strong id="pCount">0</strong></div>
-      <div class="dashkpi"><small>Promedio por devolución</small><strong id="pAvg">$0</strong></div>
-      <div class="dashkpi"><small>Por revisar</small><strong id="pReview">0</strong></div>
-    </div>
-    <div class="charts">
-      <article class="chartcard trend"><h3>Tendencia diaria</h3><div class="chart" id="trendChart" role="img" aria-label="Montos devueltos por día"></div></article>
-      <article class="chartcard"><h3>Motivos de devolución</h3><div class="chart" id="reasonChart" role="img" aria-label="Devoluciones agrupadas por motivo"></div></article>
-      <article class="chartcard"><h3>Devoluciones por chofer</h3><div class="chart" id="driverChart" role="img" aria-label="Montos devueltos por chofer"></div></article>
-    </div>
-  </section>
-
+  <div class="charts">
+    <div class="chart-box"><h3>Devoluciones por motivo</h3><canvas id="cMotivo"></canvas></div>
+    <div class="chart-box"><h3>Devoluciones por chofer</h3><canvas id="cChofer"></canvas></div>
+    <div class="chart-box"><h3>Evolución del día (por hora)</h3><canvas id="cHora"></canvas></div>
+  </div>
   <div class="bar">
     <input id="dia" type="date" aria-label="Día">
     <input id="q" type="search" placeholder="Buscar por factura o motivo" aria-label="Buscar">
@@ -138,6 +100,7 @@ tr.new td{background:var(--hl)}
 </div>
 <div class="toast" id="toast" role="status"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const SB=supabase.createClient('https://pojptgggdlhiqkmecfkh.supabase.co','sb_publishable_Aef5DUPDiJMX_dkUvIzZZg_Zaie5KjR');
@@ -146,7 +109,6 @@ const clp=n=>'$'+Number(n).toLocaleString('es-CL');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const hh=r=>new Date(r.creado_en).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
 let rows=[],fresh=new Set(),chan=null,timer=null,dayWatch=null;
-let periodRows=[],periodTimer=null;
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)}
 const hoy=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 function resetDayState(){
@@ -169,8 +131,6 @@ async function start(){
   if(!data.session){$('vLogin').hidden=false;$('vApp').hidden=true;return}
   $('vLogin').hidden=true;$('vApp').hidden=false;
   if(!$('dia').value)$('dia').value=hoy();
-  if(!$('hasta').value)$('hasta').value=hoy();
-  if(!$('desde').value){const d=new Date();d.setDate(1);$('desde').value=d.toISOString().slice(0,10)}
   startDailyWatch();
   await load(false);
   if(!chan)chan=SB.channel('devol-vivo').on('postgres_changes',{event:'*',schema:'public',table:'devoluciones'},()=>{clearTimeout(timer);timer=setTimeout(()=>load(true),400)}).subscribe();
@@ -199,41 +159,10 @@ async function load(notify){
   sel.innerHTML='<option value="">Todos los choferes</option>'+nombres.map(n=>`<option>${esc(n)}</option>`).join('');
   sel.value=nombres.includes(cur)?cur:'';
   render();
-  loadPeriod(notify);
 }
 function view(){
   const q=$('q').value.trim().toLowerCase(),c=$('ch').value,s=$('st').value;
-  return rows.filter(r=>(!q||String(r.numero_factura).toLowerCase().includes(q)||(r.motivo||'').toLowerCase().includes(q))&&(!c||r.chofer===c)&&(!s||(s==='rv')===r.revisar));
-}
-async function loadPeriod(notify){
-  const desde=$('desde').value,hasta=$('hasta').value;
-  if(!desde||!hasta||desde>hasta){$('pTotal').textContent='—';$('pCount').textContent='—';$('pAvg').textContent='—';$('pReview').textContent='—';$('trendChart').innerHTML='<div class="chartempty">Elige un período válido (Desde no puede ser posterior a Hasta).</div>';$('reasonChart').innerHTML='';$('driverChart').innerHTML='';return}
-  clearTimeout(periodTimer);
-  periodTimer=setTimeout(async()=>{
-    const [y1,m1,d1]=desde.split('-').map(Number),[y2,m2,d2]=hasta.split('-').map(Number);
-    const ini=new Date(y1,m1-1,d1),fin=new Date(y2,m2-1,d2+1);
-    const {data,error}=await SB.from('devoluciones').select('id,chofer,numero_factura,monto,motivo,revisar,creado_en').gte('creado_en',ini.toISOString()).lt('creado_en',fin.toISOString()).order('creado_en',{ascending:true}).limit(10000);
-    if(error){$('trendChart').innerHTML='<div class="chartempty">No se pudo cargar el período. Intenta de nuevo.</div>';return}
-    periodRows=data||[];renderPeriod();
-  },notify?0:150);
-}
-function barRows(containerId,items,format,klass=''){
-  const el=$(containerId);if(!items.length){el.innerHTML='<div class="chartempty">Sin devoluciones en este período.</div>';return}
-  const max=Math.max(...items.map(x=>x.value),1);
-  el.innerHTML=items.map(x=>`<div class="chartrow"><span class="chartlabel" title="${esc(x.label)}">${esc(x.label)}</span><span class="track"><span class="fill ${klass}" style="display:block;width:${Math.max(x.value/max*100,1)}%"></span></span><span class="chartvalue">${format(x.value)}</span></div>`).join('');
-}
-function renderPeriod(){
-  const total=periodRows.reduce((s,r)=>s+Number(r.monto||0),0),count=periodRows.length,review=periodRows.filter(r=>r.revisar).length;
-  $('pTotal').textContent=clp(total);$('pCount').textContent=count.toLocaleString('es-CL');$('pAvg').textContent=clp(count?Math.round(total/count):0);$('pReview').textContent=review.toLocaleString('es-CL');
-  const daily=new Map(),reasons=new Map(),drivers=new Map();
-  for(const r of periodRows){const date=new Date(r.creado_en).toLocaleDateString('sv-SE');daily.set(date,(daily.get(date)||0)+Number(r.monto||0));const reason=(r.motivo||'Sin motivo').trim();reasons.set(reason,(reasons.get(reason)||0)+1);const driver=(r.chofer||'Sin chofer').trim();drivers.set(driver,(drivers.get(driver)||0)+Number(r.monto||0))}
-  const dailyItems=[...daily].sort((a,b)=>a[0].localeCompare(b[0])).map(([label,value])=>({label:new Date(label+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short'}),value}));
-  barRows('trendChart',dailyItems,v=>clp(v),'');
-  barRows('reasonChart',[...reasons].sort((a,b)=>b[1]-a[1]).map(([label,value])=>({label,value})),v=>`${v} ${v===1?'devolución':'devoluciones'}`,'alt');
-  barRows('driverChart',[...drivers].sort((a,b)=>b[1]-a[1]).map(([label,value])=>({label,value})),v=>clp(v),'gold');
-  $('trendChart').insertAdjacentHTML('beforeend','<div class="chartnote">Montos agrupados por día</div>');
-  $('reasonChart').insertAdjacentHTML('beforeend','<div class="chartnote">Cantidad de devoluciones por motivo</div>');
-  $('driverChart').insertAdjacentHTML('beforeend','<div class="chartnote">Monto acumulado por chofer</div>');
+  return rows.filter(r=>(!q||r.numero_factura.toLowerCase().includes(q)||(r.motivo||'').toLowerCase().includes(q))&&(!c||r.chofer===c)&&(!s||(s==='rv')===r.revisar));
 }
 function render(){
   const v=view();
@@ -243,11 +172,37 @@ function render(){
   $('k2').textContent=rows.length;
   $('k3').textContent=new Set(rows.map(r=>r.chofer)).size;
   $('k4').textContent=rows.filter(r=>r.revisar).length;
+  drawCharts(rows);
+}
+let _charts={};
+function drawCharts(data){
+  const INK=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+  const MUT=getComputedStyle(document.documentElement).getPropertyValue('--mut').trim();
+  const LINE=getComputedStyle(document.documentElement).getPropertyValue('--line').trim();
+  const PAL=['#2563EB','#14795A','#D97706','#DC2626','#7C3AED','#0891B2','#65A30D'];
+  const opts={responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:MUT,font:{size:12}},grid:{color:LINE}},y:{ticks:{color:MUT,font:{size:12},precision:0},grid:{color:LINE}}}};
+  // motivos
+  const mot={};data.forEach(r=>{const k=r.motivo||'Sin motivo';mot[k]=(mot[k]||0)+1});
+  const motK=Object.keys(mot),motV=motK.map(k=>mot[k]);
+  if(_charts.mot){_charts.mot.data.labels=motK;_charts.mot.data.datasets[0].data=motV;_charts.mot.update()}
+  else{_charts.mot=new Chart($('cMotivo'),{type:'bar',data:{labels:motK,datasets:[{data:motV,backgroundColor:PAL.slice(0,motK.length),borderRadius:6}]},options:{...opts,indexAxis:'y',plugins:{legend:{display:false}}}})}
+  // choferes
+  const cho={};data.forEach(r=>{cho[r.chofer]=(cho[r.chofer]||0)+1});
+  const choK=Object.keys(cho),choV=choK.map(k=>cho[k]);
+  if(_charts.cho){_charts.cho.data.labels=choK;_charts.cho.data.datasets[0].data=choV;_charts.cho.update()}
+  else{_charts.cho=new Chart($('cChofer'),{type:'bar',data:{labels:choK,datasets:[{data:choV,backgroundColor:'#2563EB',borderRadius:6}]},options:{...opts,plugins:{legend:{display:false}}}})}
+  // por hora
+  const hrs={};for(let h=0;h<24;h++)hrs[h]=0;
+  data.forEach(r=>{const h=new Date(r.creado_en).getHours();hrs[h]++});
+  const hMax=data.length?Math.max(...data.map(r=>new Date(r.creado_en).getHours())):23;
+  const hMin=data.length?Math.min(...data.map(r=>new Date(r.creado_en).getHours())):0;
+  const hLabels=Array.from({length:hMax-hMin+1},(_,i)=>`${String(hMin+i).padStart(2,'0')}:00`);
+  const hVals=hLabels.map((_,i)=>hrs[hMin+i]);
+  if(_charts.hr){_charts.hr.data.labels=hLabels;_charts.hr.data.datasets[0].data=hVals;_charts.hr.update()}
+  else{_charts.hr=new Chart($('cHora'),{type:'line',data:{labels:hLabels,datasets:[{data:hVals,borderColor:'#14795A',backgroundColor:'rgba(20,121,90,.12)',fill:true,tension:.4,pointRadius:4}]},options:{...opts,plugins:{legend:{display:false}}}})}
 }
 ['q','ch','st'].forEach(i=>$(i).addEventListener('input',render));
 $('dia').addEventListener('change',()=>load(false));
-$('aplicar').addEventListener('click',()=>loadPeriod(false));
-['desde','hasta'].forEach(id=>$(id).addEventListener('change',()=>loadPeriod(false)));
 $('rows').addEventListener('click',async e=>{
   const b=e.target.closest('button[data-t]');if(!b)return;
   const r=rows.find(x=>String(x.id)===b.dataset.t);if(!r)return;
